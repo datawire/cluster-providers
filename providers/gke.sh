@@ -15,7 +15,7 @@ gke_provider_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 }
 
 # shellcheck source=../common.sh
-source "$gke_provider_dir/../../common.sh"
+source "$gke_provider_dir/../common.sh"
 
 user=$(whoami)
 num="${TRAVIS_BUILD_ID:-0}"

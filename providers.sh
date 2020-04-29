@@ -5,12 +5,12 @@ providers_sh_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 	echo "FATAL: no current dir (maybe running in zsh?)"
 	exit 1
 }
-TOP_DIR=$(realpath $providers_sh_dir/../..)
+TOP_DIR=$providers_sh_dir
 
 script_name=$(basename ${0#-}) #- needed if sourced no path
 this_script=$(basename ${BASH_SOURCE})
 
-source "$TOP_DIR/ci/common.sh"
+source "$TOP_DIR/common.sh"
 
 ########################################################################################################################
 

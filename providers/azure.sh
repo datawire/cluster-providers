@@ -18,7 +18,7 @@ azure_prov_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 }
 
 # shellcheck source=../common.sh
-source "$azure_prov_dir/../../common.sh"
+source "$azure_prov_dir/../common.sh"
 
 user=$(whoami)
 num="${TRAVIS_BUILD_ID:-0}"

@@ -7,7 +7,7 @@ amazon_provider_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pw
 }
 
 # shellcheck source=../common.sh
-source "$amazon_provider_dir/../../common.sh"
+source "$amazon_provider_dir/../common.sh"
 
 #########################################################################################
 

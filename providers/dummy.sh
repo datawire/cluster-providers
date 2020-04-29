@@ -7,7 +7,7 @@ dummy_prov_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 }
 
 # shellcheck source=../common.sh
-source "$dummy_prov_dir/../../common.sh"
+source "$dummy_prov_dir/../common.sh"
 
 #########################################################################################
 
