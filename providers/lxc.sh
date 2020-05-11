@@ -58,6 +58,10 @@ setup)
   sudo lxd waitready
   sudo lxd init --auto
   sudo usermod -a -G lxd $(whoami)
+
+  for module in overlay aufs ip_vs ip_vs_rr ip_vs_wrr ip_vs_sh nf_conntrack br_netfilter rbd ; do
+    sudo modprobe $module || warn "could not local module $module"
+  done
   ;;
 
 create)
@@ -148,15 +152,22 @@ get-env)
     echo "DEV_REGISTRY=$DEV_REGISTRY"
   fi
 
+  all_ips=""
   lxc info "kube-master0" >/dev/null 2>&1 && {
-    echo "SSH_IP_MASTER0=$(lxc_container_ip kube-master0)"
+    master_ip=$(lxc_container_ip kube-master0)
+    all_ips="$master_ip"
+    echo "SSH_IP_MASTER0=$master_ip"
   }
 
   for i in $(lxc_seq_workers); do
     lxc info "kube-worker${i}" >/dev/null 2>&1 && {
-      echo "SSH_IP_WORKER$i=$(lxc_container_ip kube-worker${i})"
+      worker_ip=$(lxc_container_ip kube-worker${i})
+      all_ips="$all_ips $worker_ip"
+      echo "SSH_IP_WORKER$i=$worker_ip"
     }
   done
+
+  echo "SSH_IPS='$all_ips'"
 
   # these machines will never be accessible from the outside world, so it
   # is ok to have a weak username/password

@@ -67,11 +67,14 @@ files:
   # From the version v11.0 kubelet requires to have shared mode for the host mounts.
   # There is dirty hack for achieve that, inside LXC-container run:
   # see https://medium.com/@kvaps/run-kubernetes-in-lxc-container-f04aa94b6c9c
-  - path: /etc/rc.local
+  - path: /etc/init.d/boot.local
     generator: dump
     content: |-
       #!/bin/sh -e
       mount --make-rshared /
+
+      echo ">>> linking /dev/kmsg"
+      [ -e /dev/kmsg ] || ln -s /dev/console /dev/kmsg
 
   - path: /etc/cni/net.d/99-loopback.conf
     generator: dump
@@ -95,6 +98,8 @@ packages:
         - systemd-sysvinit
         - openssh
         - sudo
+        - sshpass
+        - less
         - apparmor-abstractions
         - elfutils
         - file
@@ -112,16 +117,19 @@ packages:
         - kubectl
         - haproxy
         - docker
+        - python3
       action: install
 
 actions:
   - trigger: post-packages
     action: |-
       #!/bin/sh
-
       mkdir -p /etc/cni/net.d
-
       # NOTE: CNI plugins are installed in /usr/lib/cni in OpenSUSE
+
+  - trigger: post-packages
+    action: |-
+      #!/bin/sh
 
       # encrypted "linux"
       # obtained with `echo "linux" | openssl passwd -1 -stdin`
@@ -137,15 +145,20 @@ actions:
       touch /root/.ssh/authorized_keys
       chmod 600 /root/.ssh/authorized_keys
 
+  - trigger: post-packages
+    action: |-
+      #!/bin/sh
+
       echo ">>> making sure some packages are not installed..."
       rpm -e --nodeps docker-kubic docker-libnetwork-kubic docker-runc-kubic || /bin/true
-
-      # /usr/bin/sed -i -e 's/btrfs/overlay2/g' /etc/crio/crio.conf
 
       echo ">>> enabling some services..."
       systemctl enable sshd
       systemctl enable docker
       systemctl disable crio
+
+      echo ">>> making sure python exists..."
+      [ -e /usr/bin/python ] || ln -s /usr/bin/python3 /usr/bin/python
 
       # some commands are really useless in a LXC container, so we create "fake" clones:
       for target in /usr/bin/kmod /sbin/sysctl ; do
@@ -153,7 +166,14 @@ actions:
         ln -s /bin/true $target
       done
 
-      exit 0
+  - trigger: post-files
+    action: |-
+      #!/bin/sh
+
+      echo ">>> fixing boot.local"
+      chmod 755 /etc/init.d/boot.local
+      ln -s /etc/init.d/boot.local /etc/rc.local
+      sh /etc/init.d/boot.local
 
 environment:
   variables:
