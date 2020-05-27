@@ -44,6 +44,10 @@ GKE_LOC_REGION="${CLUSTER_REGION:-us-east1-b}"
 # the file for auth
 GKE_AUTH_FILE="${GKE_AUTH_FILE:-/tmp/gke-auth.json}"
 
+# cluster version
+# get the list of supported versions with `gcloud container get-server-config --region $CLUSTER_REGION`
+GKE_CLUSTER_VERSION=${CLUSTER_VERSION:-"1.16.8-gke.15"}
+
 #########################################################################################
 
 GKE_KUBECONFIG=$HOME/.kube/config
@@ -233,6 +237,7 @@ create)
 	info "Creating a GKE cluster in $GKE_LOC_REGION..."
 	$EXE_GCLOUD container clusters create "$GKE_CLUSTER" \
 		--num-nodes "$GKE_CLUSTER_NUM_NODES" --preemptible \
+		--cluster-version="$GKE_CLUSTER_VERSION" \
 		--machine-type "$GKE_CLUSTER_MACHINE_TYPE" \
 		--region "$GKE_LOC_REGION" \
 		--enable-ip-alias \
