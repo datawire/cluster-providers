@@ -105,7 +105,8 @@ setup)
 
 cleanup)
     info "Cleaning up k3d..."
-    # TODO
+    $0 delete
+    # TODO: uninstall stuff
     ;;
 
 #
@@ -151,7 +152,7 @@ delete)
     done
 
     info "Destroying k3d cluster $K3D_CLUSTER_NAME..."
-    $K3D_EXE delete --name="$K3D_CLUSTER_NAME"
+    $K3D_EXE delete --name="$K3D_CLUSTER_NAME" 2>/dev/null || /bin/true
     ;;
 
 #

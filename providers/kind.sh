@@ -28,6 +28,8 @@ KIND_KUBECONFIG="$HOME/.kube/${KIND_CLUSTER_NAME}"
 
 KIND_NETWORK_NAME="kind"
 
+KIND_REGISTRY_ENABLED=1
+
 KIND_REGISTRY_NAME="${KIND_REGISTRY_NAME:-registry.localhost}"
 
 KIND_REGISTRY_PORT="${KIND_REGISTRY_PORT:-5000}"
@@ -55,15 +57,17 @@ check_kind_cluster_exists() {
 create_cluster() {
   mkdir -p "$(dirname $KIND_KUBECONFIG)"
 
-  info "Creating a registry container (unless it already exists)..."
-  running="$(docker inspect -f '{{.State.Running}}' "${KIND_REGISTRY_NAME}" 2>/dev/null || true)"
-  if [ "${running}" != 'true' ]; then
-    docker run \
-      -d --restart=always -p "${KIND_REGISTRY_PORT}:5000" --name "${KIND_REGISTRY_NAME}" \
-      registry:2
+  if [ -n "$KIND_REGISTRY_ENABLED" ] ; then
+    info "Creating a registry container (unless it already exists)..."
+    running="$(docker inspect -f '{{.State.Running}}' "${KIND_REGISTRY_NAME}" 2>/dev/null || true)"
+    if [ "${running}" != 'true' ]; then
+      docker run \
+        -d --restart=always -p "${KIND_REGISTRY_PORT}:5000" --name "${KIND_REGISTRY_NAME}" \
+        registry:2
+    fi
   fi
 
-  info "Creating kind cluster $KIND_CLUSTER_NAME..."
+  info "Creating KIND cluster $KIND_CLUSTER_NAME (with ${KIND_HTTP_PORT}->80, ${KIND_HTTPS_PORT}->443)"
   cat <<EOF | $KIND_EXE create cluster $KIND_ARGS --config=- || abort "when creating cluster"
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -77,19 +81,23 @@ nodes:
         node-labels: "ingress-ready=true"
   extraPortMappings:
   - containerPort: 80
-    hostPort: $KIND_HTTP_PORT
+    hostPort: ${KIND_HTTP_PORT}
     protocol: TCP
+    listenAddress: "127.0.0.1"
   - containerPort: 443
-    hostPort: $KIND_HTTPS_PORT
+    hostPort: ${KIND_HTTPS_PORT}
     protocol: TCP
+    listenAddress: "127.0.0.1"
 containerdConfigPatches:
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:${KIND_REGISTRY_PORT}"]
     endpoint = ["http://${KIND_REGISTRY_NAME}:${KIND_REGISTRY_PORT}"]
 EOF
 
-  info "Connecting the registry to the cluster network"
-  docker network connect "$KIND_NETWORK_NAME" "${KIND_REGISTRY_NAME}"
+  if [ -n "$KIND_REGISTRY_ENABLED" ] ; then
+    info "Connecting the registry to the cluster network"
+    docker network connect "$KIND_NETWORK_NAME" "${KIND_REGISTRY_NAME}"
+  fi
 
   # tell https://tilt.dev to use the registry
   # https://docs.tilt.dev/choosing_clusters.html#discovering-the-registry
@@ -98,7 +106,7 @@ EOF
     kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:${KIND_REGISTRY_PORT}"
   done
 
-  info "Showing some kind cluster info:"
+  info "Showing some KIND cluster info:"
   kubectl --kubeconfig="$KIND_KUBECONFIG" cluster-info
 }
 
@@ -110,7 +118,7 @@ case $1 in
 #
 setup)
   if ! command_exists kind; then
-    info "Installing kind"
+    info "Installing KIND"
     curl -Lo ./kind "$KIND_URL" || abort "could not download kind from $KIND_URL"
     chmod +x ./kind
     mkdir -p "$(dirname $KIND_EXE)"
@@ -148,7 +156,7 @@ create)
     warn "No kind command found. Install kind or use a different CLUSTER_PROVIDER."
     info "You can manually install kind with:"
     info "curl -Lo ./kind "$KIND_URL""
-    abort "no kind executable found"
+    abort "no KIND executable found"
   fi
 
   if check_kind_cluster_exists; then
@@ -160,7 +168,7 @@ create)
   ;;
 
 delete)
-  info "Destroying kind cluster $KIND_CLUSTER_NAME..."
+  info "Destroying KIND cluster $KIND_CLUSTER_NAME..."
   $KIND_EXE delete cluster --name="$KIND_CLUSTER_NAME" || /bin/true
   rm -f "$KIND_KUBECONFIG"
   ;;
@@ -175,6 +183,12 @@ create-registry)
   else
     create_cluster
   fi
+  ;;
+
+delete-registry)
+  info "Stopping registry at $KIND_CLUSTER_NAME"
+  docker stop "${KIND_REGISTRY_NAME}"
+  docker rm "${KIND_REGISTRY_NAME}"
   ;;
 
 #
