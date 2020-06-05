@@ -121,7 +121,7 @@ setup)
     info "Installing KIND"
     curl -Lo ./kind "$KIND_URL" || abort "could not download kind from $KIND_URL"
     chmod +x ./kind
-    mkdir -p "$(dirname $KIND_EXE)"
+    mkdir -p "$(dirname $KIND_INSTALL_EXE)"
     mv ./kind $KIND_INSTALL_EXE
     command_exists kind || abort "could not install kind"
   else

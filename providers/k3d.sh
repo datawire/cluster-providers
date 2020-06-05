@@ -16,6 +16,10 @@ num="${TRAVIS_BUILD_ID:-0}"
 
 K3D_EXE="k3d"
 
+K3D_INSTALL_EXE="$HOME/bin/k3d"
+
+K3D_URL="https://github.com/rancher/k3d/releases/download/v1.7.0/k3d-linux-amd64"
+
 K3D_CLUSTER_NAME="${CLUSTER_NAME:-operator-tests-$user-$num}"
 
 K3D_NETWORK_NAME="k3d-$K3D_CLUSTER_NAME"
@@ -81,10 +85,14 @@ case $1 in
 # setup and cleanup
 #
 setup)
-    if ! command_exists k3d; then
+    if ! command_exists $K3D_EXE; then
         info "Installing k3d"
-        curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
-        command_exists k3d || abort "coult not install k3d"
+
+        curl -Lo ./k3d "$K3D_URL" || abort "could not download K3D from $K3D_URL"
+        chmod +x ./k3d
+        mkdir -p "$(dirname $K3D_INSTALL_EXE)"
+        mv ./k3d $K3D_INSTALL_EXE
+        command_exists $K3D_EXE || abort "could not install k3d"
     else
         info "k3d seems to be installed"
     fi
