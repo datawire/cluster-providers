@@ -287,6 +287,7 @@ exists)
 # the registry
 #
 create-registry)
+	gke_login
 	gke_docker_registry_login
 	;;
 
