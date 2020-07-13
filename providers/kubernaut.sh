@@ -134,11 +134,11 @@ exists)
 get-env)
 	kc="$(get_kubeconfig)"
 	if [ -n "$kc" ]; then
-		echo "DEV_KUBECONFIG=$kc"
-		echo "KUBECONFIG=$kc"
+		export_env "DEV_KUBECONFIG" "$kc"
+		export_env "KUBECONFIG" "$kc"
 	fi
 
-	echo "DEV_REGISTRY=$KUBERNAUT_REGISTRY"
+	export_env "DEV_REGISTRY" "$KUBERNAUT_REGISTRY"
 	;;
 
 *)

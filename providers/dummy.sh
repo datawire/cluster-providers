@@ -22,15 +22,15 @@ create)
 #
 get-env)
 	if [ -n "$KUBECONFIG" ]; then
-		echo "DEV_KUBECONFIG=$KUBECONFIG"
-		echo "KUBECONFIG=$KUBECONFIG"
+		export_env "DEV_KUBECONFIG" "$KUBECONFIG"
+		export_env "KUBECONFIG" "$KUBECONFIG"
 	elif [ -n "$DEV_KUBECONFIG" ]; then
-		echo "DEV_KUBECONFIG=$DEV_KUBECONFIG"
-		echo "KUBECONFIG=$DEV_KUBECONFIG"
+		export_env "DEV_KUBECONFIG" "$DEV_KUBECONFIG"
+		export_env "KUBECONFIG" "$DEV_KUBECONFIG"
 	fi
 
 	if [ -n "$DEV_REGISTRY" ]; then
-		echo "DEV_REGISTRY=$DEV_REGISTRY"
+		export_env "DEV_REGISTRY" "$DEV_REGISTRY"
 	fi
 	;;
 

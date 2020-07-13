@@ -131,11 +131,11 @@ exists)
 # get the environment vars
 #
 get-env)
-	echo "DEV_KUBECONFIG=$DEF_KUBECONFIG"
-	echo "KUBECONFIG=$DEF_KUBECONFIG"
+	export_env "DEV_KUBECONFIG" "$DEF_KUBECONFIG"
+	export_env "KUBECONFIG" "$DEF_KUBECONFIG"
 
 	# TODO
-	echo "DEV_REGISTRY="
+	export_env "DEV_REGISTRY" ""
 	;;
 
 *)

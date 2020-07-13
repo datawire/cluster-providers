@@ -1,0 +1,32 @@
+name: "Cluster provider"
+description: "Run a cluster provider action"
+author: "Avaro Saurin"
+branding:
+  color: blue
+  icon: anchor
+inputs:
+  provider:
+    description: "The cluster-provider (ie, k3d, kind, gke...)"
+    required: true
+  command:
+    description: "The command to run (ie, create, destroy, login...)"
+    required: true
+  name:
+    description: "The name of the cluster. It should be unique."
+    required: false
+  size:
+    description: "The total number of nodes in the cluster (including master and worker nodes)"
+    required: false
+  machine:
+    description: "The node size or 'model', depending on the cluster provider (ie, on Azure it can be something like 'Standard_D2s_v3')"
+    required: false
+  region:
+    description: "cluster location (ie, 'us-east1-b' on GKE)"
+    required: false
+  registry:
+    description: "A custom name for the registry in the cluster (supported only in some providers)"
+    required: false
+
+runs:
+  using: "node12"
+  main: "main.js"

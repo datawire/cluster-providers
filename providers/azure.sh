@@ -441,23 +441,23 @@ get-env)
   kc="$(az_get_kubeconfig)"
   registry=$(az_get_registry_hostname)
 
-  echo "DEV_KUBECONFIG=$kc"
-  echo "KUBECONFIG=$kc"
-  echo "DEV_REGISTRY=$registry"
+  export_env "DEV_KUBECONFIG" "$kc"
+  export_env "KUBECONFIG" "$kc"
+  export_env "DEV_REGISTRY" "$registry"
 
-  echo "CLUSTER_NAME=$AZ_CLUSTER"
-  echo "CLUSTER_SIZE=$AZ_CLUSTER_NUM_NODES"
-  echo "CLUSTER_MACHINE=$AZ_CLUSTER_NODE_SIZE"
-  echo "CLUSTER_REGION=$AZ_LOC"
+  export_env "CLUSTER_NAME" "$AZ_CLUSTER"
+  export_env "CLUSTER_SIZE" "$AZ_CLUSTER_NUM_NODES"
+  export_env "CLUSTER_MACHINE" "$AZ_CLUSTER_NODE_SIZE"
+  export_env "CLUSTER_REGION" "$AZ_LOC"
 
   # azure-specific variables
-  echo "AZ_CLUSTER=$AZ_CLUSTER"
-  echo "AZ_CLUSTER_NUM_NODES=$AZ_CLUSTER_NUM_NODES"
-  echo "AZ_CLUSTER_NODE_SIZE=$AZ_CLUSTER_NODE_SIZE"
-  echo "AZ_REGISTRY=$AZ_REGISTRY"
-  echo "AZ_RES_GRP=$AZ_RES_GRP"
-  echo "MANAGE_RES_GRP=$MANAGE_RES_GRP"
-  echo "AZ_LOC=$AZ_LOC"
+  export_env "AZ_CLUSTER" "$AZ_CLUSTER"
+  export_env "AZ_CLUSTER_NUM_NODES" "$AZ_CLUSTER_NUM_NODES"
+  export_env "AZ_CLUSTER_NODE_SIZE" "$AZ_CLUSTER_NODE_SIZE"
+  export_env "AZ_REGISTRY" "$AZ_REGISTRY"
+  export_env "AZ_RES_GRP" "$AZ_RES_GRP"
+  export_env "MANAGE_RES_GRP" "$MANAGE_RES_GRP"
+  export_env "AZ_LOC" "$AZ_LOC"
   ;;
 
 *)
