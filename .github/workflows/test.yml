@@ -1,0 +1,24 @@
+name: Test GitHub action
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Create k3d cluster
+        uses: ./
+        with:
+            provider: k3d
+            command: create
+
+      - name: Test the k3d cluster created
+        run: |
+          kubectl cluster-info

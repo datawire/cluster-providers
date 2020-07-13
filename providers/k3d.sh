@@ -38,6 +38,8 @@ K3D_ARGS="--wait=60 --name=${K3D_CLUSTER_NAME} --api-port ${K3D_API_PORT} --enab
 
 #########################################################################################
 
+export PATH=$PATH:$(dirname $K3D_INSTALL_EXE)
+
 [ -n "$CLUSTER_SIZE" ] && K3D_NUM_WORKERS=$((CLUSTER_SIZE - 1))
 
 get_kubeconfig() {
@@ -100,7 +102,7 @@ setup)
     info "Checking that $K3D_REGISTRY_NAME is resolvable"
     grep -q $K3D_REGISTRY_NAME /etc/hosts
     if [ $? -ne 0 ]; then
-        if [ "$IS_CI" == "" ]; then
+        if [ -z "$IS_CI" ] && [ -z "$CI" ] ; then
             abort "$K3D_REGISTRY_NAME is not in /etc/hosts: please add an entry manually."
         fi
 
@@ -186,24 +188,24 @@ exists)
 # get the environment vars
 #
 get-env)
-    echo "DEV_REGISTRY=${K3D_REGISTRY}"
-    echo "DOCKER_NETWORK=${K3D_NETWORK_NAME}"
+    export_env "DEV_REGISTRY" "${K3D_REGISTRY}"
+    export_env "DOCKER_NETWORK" "${K3D_NETWORK_NAME}"
 
     kc=$(get_kubeconfig)
     if [ -n "$kc" ]; then
-        echo "DEV_KUBECONFIG=${kc}"
-        echo "KUBECONFIG=${kc}"
+        export_env "DEV_KUBECONFIG" "${kc}"
+        export_env "KUBECONFIG" "${kc}"
     fi
 
-    echo "CLUSTER_NAME=$K3D_CLUSTER_NAME"
-    echo "CLUSTER_SIZE=$((K3D_NUM_WORKERS + 1))"
-    echo "CLUSTER_MACHINE="
-    echo "CLUSTER_REGION="
+    export_env "CLUSTER_NAME" "$K3D_CLUSTER_NAME"
+    export_env "CLUSTER_SIZE" "$((K3D_NUM_WORKERS + 1))"
+    export_env "CLUSTER_MACHINE="
+    export_env "CLUSTER_REGION="
 
     # k3d-specific vars
-    echo "K3D_CLUSTER_NAME=$K3D_CLUSTER_NAME"
-    echo "K3D_NETWORK_NAME=$K3D_NETWORK_NAME"
-    echo "K3D_API_PORT=$K3D_API_PORT"
+    export_env "K3D_CLUSTER_NAME" "$K3D_CLUSTER_NAME"
+    export_env "K3D_NETWORK_NAME" "$K3D_NETWORK_NAME"
+    export_env "K3D_API_PORT" "$K3D_API_PORT"
     ;;
 
 *)

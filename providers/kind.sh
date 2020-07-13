@@ -202,20 +202,20 @@ exists)
 # get the environment vars
 #
 get-env)
-  echo "DEV_REGISTRY=${KIND_REGISTRY}"
-  echo "DOCKER_NETWORK=${KIND_NETWORK_NAME}"
+  export_env "DEV_REGISTRY" "${KIND_REGISTRY}"
+  export_env "DOCKER_NETWORK" "${KIND_NETWORK_NAME}"
 
-  echo "DEV_KUBECONFIG=${KIND_KUBECONFIG}"
-  echo "KUBECONFIG=${KIND_KUBECONFIG}"
+  export_env "DEV_KUBECONFIG" "${KIND_KUBECONFIG}"
+  export_env "KUBECONFIG" "${KIND_KUBECONFIG}"
 
-  echo "CLUSTER_NAME=$KIND_CLUSTER_NAME"
-  echo "CLUSTER_SIZE=$((KIND_NUM_WORKERS + 1))"
-  echo "CLUSTER_MACHINE="
-  echo "CLUSTER_REGION="
+  export_env "CLUSTER_NAME" "$KIND_CLUSTER_NAME"
+  export_env "CLUSTER_SIZE" "$((KIND_NUM_WORKERS + 1))"
+  export_env "CLUSTER_MACHINE" ""
+  export_env "CLUSTER_REGION" ""
 
   # kind-specific vars
-  echo "KIND_CLUSTER_NAME=$KIND_CLUSTER_NAME"
-  echo "KIND_NETWORK_NAME=$KIND_NETWORK_NAME"
+  export_env "KIND_CLUSTER_NAME" "$KIND_CLUSTER_NAME"
+  export_env "KIND_NETWORK_NAME" "$KIND_NETWORK_NAME"
   ;;
 
 *)

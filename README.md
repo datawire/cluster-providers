@@ -153,3 +153,51 @@ SSH_IP_MASTER0=10.0.1.169
 SSH_IP_WORKER0=10.0.1.57
 SSH_IPS='10.0.1.169 10.0.1.57'
 ```
+
+## Using it in GitHub actions
+
+### Pre-requisites
+
+Create a workflow YAML file in your `.github/workflows` directory. An
+[example workflow](#example-workflow) is available below.
+For more information, reference the GitHub Help Documentation for
+[Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file).
+
+### Inputs
+
+For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
+
+- `provider`: The cluster-provider (ie, k3d, kind, gke...)
+- `command`: The command to run (ie, create, destroy, login...)
+- `name`: (optional) The name of the cluster. It should be unique.
+- `size`: (optional) The total number of nodes in the cluster (including
+  master and worker nodes)
+- `machine`: (optional)The node size or 'model', depending on the cluster provider (ie, on Azure it can be something like 'Standard_D2s_v3')
+- `region`: (optional) cluster location (ie, 'us-east1-b' on GKE)
+- `registry`: (optional) a custom name for the registry in the cluster (supported only in some providers)
+
+The following actionbs will have available all the environment variables
+exported wuth `get-env`.
+
+### Example Workflow
+
+Create a workflow (eg: `.github/workflows/create-cluster.yml`):
+
+```yaml
+name: Create Cluster
+on: pull_request
+jobs:
+  create-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create a k3d Cluster
+        uses: datawire/cluster-providers
+        with:
+            provider: k3d
+            action: create
+      - name: Test the cluster created
+        run: |
+          kubectl cluster-info
+```
+
+This uses [@datawire/cluster-provider](https://www.github.com/datawire/cluster-provider) GitHub Action to spin up a [k3d](https://github.com/t\rancher/k3d/) Kubernetes cluster on every Pull Request.

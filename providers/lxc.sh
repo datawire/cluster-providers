@@ -136,43 +136,43 @@ delete)
 #
 get-env)
   if [ -n "$KUBECONFIG" ]; then
-    echo "DEV_KUBECONFIG=$KUBECONFIG"
-    echo "KUBECONFIG=$KUBECONFIG"
+    export_env "DEV_KUBECONFIG" "$KUBECONFIG"
+    export_env "KUBECONFIG" "$KUBECONFIG"
   elif [ -n "$DEV_KUBECONFIG" ]; then
-    echo "DEV_KUBECONFIG=$DEV_KUBECONFIG"
-    echo "KUBECONFIG=$DEV_KUBECONFIG"
+    export_env "DEV_KUBECONFIG" "$DEV_KUBECONFIG"
+    export_env "KUBECONFIG" "$DEV_KUBECONFIG"
   fi
 
-  echo "CLUSTER_NAME="
-  echo "CLUSTER_SIZE=$((LXC_NUM_WORKERS + 1))"
-  echo "CLUSTER_MACHINE="
-  echo "CLUSTER_REGION="
+  export_env "CLUSTER_NAME="
+  export_env "CLUSTER_SIZE" $((LXC_NUM_WORKERS + 1))
+  export_env "CLUSTER_MACHINE" ""
+  export_env "CLUSTER_REGION" ""
 
   if [ -n "$DEV_REGISTRY" ]; then
-    echo "DEV_REGISTRY=$DEV_REGISTRY"
+    export_env "DEV_REGISTRY" "$DEV_REGISTRY"
   fi
 
   all_ips=""
   lxc info "kube-master0" >/dev/null 2>&1 && {
     master_ip=$(lxc_container_ip kube-master0)
     all_ips="$master_ip"
-    echo "SSH_IP_MASTER0=$master_ip"
+    export_env "SSH_IP_MASTER0" "$master_ip"
   }
 
   for i in $(lxc_seq_workers); do
     lxc info "kube-worker${i}" >/dev/null 2>&1 && {
       worker_ip=$(lxc_container_ip kube-worker${i})
       all_ips="$all_ips $worker_ip"
-      echo "SSH_IP_WORKER$i=$worker_ip"
+      export_env "SSH_IP_WORKER$i" "$worker_ip"
     }
   done
 
-  echo "SSH_IPS='$all_ips'"
+  export_env "SSH_IPS" "$all_ips"
 
   # these machines will never be accessible from the outside world, so it
   # is ok to have a weak username/password
-  echo "SSH_USERNAME=root"
-  echo "SSH_PASSWORD=linux"
+  export_env "SSH_USERNAME" "root"
+  export_env "SSH_PASSWORD" "linux"
   ;;
 
 #

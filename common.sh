@@ -222,3 +222,15 @@ all_shs_in() {
 	local d="$1"
 	echo $(for f in $d/*.sh; do echo "$(basename $f .sh)"; done) | tr "\n" " "
 }
+
+# export_env exports a variable
+export_env() {
+	local variable="$1"
+	local value="$2"
+
+	if [ -n "$GITHUB_ACTION" ] ; then
+		echo "::set-env name=${variable}::${value}"
+	else
+		echo "$variable=$value"
+	fi
+}
