@@ -92,7 +92,6 @@ create)
 		abort "could not create cluster $EKS_CLUSTER"
 
 	info "Getting credentials for cluster $EKS_CLUSTER..."
-	mkdir -p "$(dirname $DEF_KUBECONFIG)"
 	$EXE_EKSCTL utils write-kubeconfig \
 		--cluster="$EKS_CLUSTER" \
 		--kubeconfig="$DEF_KUBECONFIG" ||

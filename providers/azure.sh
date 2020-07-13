@@ -82,7 +82,8 @@ az_get_logged_in_user() {
 
 # get a cluster-specific kubeconfig
 az_get_kubeconfig() {
-  local kc_d="$(dirname $DEF_KUBECONFIG)"
+  local f_kc=$(echo $DEF_KUBECONFIG | cut -f1 -d':')
+  local kc_d="$(dirname $f_kc)"
   echo "$kc_d/azure-${AZ_CLUSTER}.yaml"
 }
 
