@@ -18,7 +18,10 @@ jobs:
         with:
             provider: k3d
             command: create
+        env:
+            K3D_EXTRA_ARGS: --server-arg '--no-deploy=traefik'
 
       - name: Test the k3d cluster created
         run: |
           kubectl cluster-info
+          kubectl get all -A

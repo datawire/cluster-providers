@@ -23,7 +23,10 @@ main() {
         touch /tmp/.cluster-provider-setup-$provider
     fi
 
+    echo ">>> Running command $command"
     "$SCRIPT_DIR/providers.sh" "$command"
+
+    echo ">>> Getting ennvironment"
     "$SCRIPT_DIR/providers.sh" "get-env"
 }
 
