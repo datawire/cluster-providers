@@ -176,8 +176,10 @@ For more information on inputs, see the [API Documentation](https://developer.gi
 - `region`: (optional) cluster location (ie, 'us-east1-b' on GKE)
 - `registry`: (optional) a custom name for the registry in the cluster (supported only in some providers)
 
-The following actionbs will have available all the environment variables
-exported wuth `get-env`.
+Any other advanced environment variable can be passed through the `env` in the action.
+
+All the subsequent steps in the workflow will automatically have available the environment
+variables that would be exported with `get-env`.
 
 ### Example Workflow
 
@@ -191,13 +193,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create a k3d Cluster
-        uses: datawire/cluster-providers
+        uses: datawire/cluster-providers@master
         with:
             provider: k3d
-            action: create
+            command: create
+        env:
+            K3D_EXTRA_ARGS: --server-arg '--no-deploy=traefik'
+
       - name: Test the cluster created
         run: |
           kubectl cluster-info
 ```
 
-This uses [@datawire/cluster-provider](https://www.github.com/datawire/cluster-provider) GitHub Action to spin up a [k3d](https://github.com/t\rancher/k3d/) Kubernetes cluster on every Pull Request.
+This uses [@datawire/cluster-provider@master](https://www.github.com/datawire/cluster-provider)
+GitHub Action to spin up a [k3d](https://github.com/t\rancher/k3d/) Kubernetes cluster on
+every Pull Request.
