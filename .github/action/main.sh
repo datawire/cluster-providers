@@ -4,7 +4,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-SCRIPT_DIR=$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}" || realpath "${BASH_SOURCE[0]}")")
+CURR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+TOP_DIR=$(realpath $CURR_DIR/../..)
 
 main() {
     local provider="${INPUT_PROVIDER}"
@@ -19,15 +20,15 @@ main() {
     export CLUSTER_PROVIDER="$provider"
 
     if [ ! -e /tmp/.cluster-provider-setup-$provider ] ; then
-        "$SCRIPT_DIR/providers.sh" "setup"
+        "$TOP_DIR/providers.sh" "setup"
         touch /tmp/.cluster-provider-setup-$provider
     fi
 
     echo ">>> Running command $command"
-    "$SCRIPT_DIR/providers.sh" "$command"
+    "$TOP_DIR/providers.sh" "$command"
 
     echo ">>> Getting ennvironment"
-    "$SCRIPT_DIR/providers.sh" "get-env"
+    "$TOP_DIR/providers.sh" "get-env"
 }
 
 main
