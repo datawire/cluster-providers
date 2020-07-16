@@ -2,16 +2,29 @@
 
 ## k3d
 
-### Advanced configuration
+The `k3d` provider create a local Kubernetes cluster with the
+latest, stable version of [k3d](github.com/rancher/k3d).
+
+### Additional input variables for advanced configuration
 
 The `k3d` cluster provider supports some environment variables for tweaking
 the configuration:
 
 - `K3D_EXTRA_ARGS`: custom arguments for `k3d create`.
 
+## KIND
+
+The `kind` provider creates a Kubenetes cluster with the latest
+version of [KIND](kind.sigs.k8s.io/).
+
 ## Azure
 
+The `azure` provider creates a Kubenetes cluster in Azure AKS using the `az` cli.
+
 ### Credentials
+
+In order to create a cluster in Azure you must obtain some valib credentials
+and make them available through environment variables.
 
 - Login into azure with `az login`
 - Get the list of subscriptions with `az account list`
@@ -41,48 +54,53 @@ the configuration:
   }
   ```
   and save it to `az-credentials.json`.
-- Now you can then save the credentials in multiple ways (env vars must be set in Travis/CircleCI/GitHub/etc):
-
-  a) encrypt the file
-    - for Travis, `travis encrypt-file az-credentials.json`
-    - commit the encrypted file (the `*.enc` file) in some path in Git
-    - set `AZ_AUTH_FILE` in the env vars in `.travis.yaml`
-    - add the decryption line in the `.travis.yaml` file
-
-  b) save the file encoded in a variable.
-    - encode it with `base64` to a file and save that file in a `AZ_AUTH` env variable.
-      For example, for Travis, you could use the command line tool like:
+- Now you must save the file encoded in a variable.
+  - encode the file with `AZ_AUTH=$(cat az-credentials.json | base64 | tr -d ' ' | tr -d '\n')`
+  - make this variable available to the cluster provider. In CI:
+    - For _Travis_, you could use the command line tool like:
+      ```console
+      $ travis env set AZ_AUTH "$AZ_AUTH"
       ```
-      $ travis env set AZ_AUTH "$(cat az-credentials.json | base64 | tr -d ' ' | tr -d '\n')"
+    - for _GitHub actions_, you can save it in a Secret and then create a
+      `env` block in your _Step_ with that secret, as:
+      ```yaml
+      env:
+        AZ_AUTH: ${{ secrets.AZ_AUTH }}
       ```
-  c) copy some of the values in the file to env variables:
-    - value of `appId` should be copied to `AZ_USERNAME`
-    - value of `password` should be copied to `AZ_PASSWORD`
-    - value of `tenant` should be copied to `AZ_TENANT`
+- Set some other environment variables:
+  - `AZ_USERNAME`: value of `appId`
+  - `AZ_PASSWORD`: value of `password`
+  - `AZ_TENANT`: value of `tenant`
+
+  In CI, make sure these variables are kept safe (ie, not printed to console)
+  by storing them in secrets.
 
 
 ## GKE
 
+The `gke` provider creates a Kubenetes cluster in GKE using the `gcloud` cli.
 
 ### Credentials
 
-- Login into the GCloud console
-- Create a new service account in https://console.cloud.google.com/iam-admin/serviceaccounts
-- Verity the roles assigned in https://console.cloud.google.com/iam-admin/iam
-- Assign _"Kubernetes Admin"_ role
-- Create a new _Key_. Select `JSON` as the format. The JSON file will be downloaded and
-  saved to your computer automatically.
-- Then you could:
+In order to create a cluster in GKE you must obtain some valib credentials
+and make them available through environment variables.
 
-  a) use some env variables:
-    - encode the file with `cat gke-credentials.json | base64 | tr -d ' ' | tr -d '\n'`
-    - save the output in a Travis env var called `GKE_AUTH`
-    - for Travis, you can do it with the command line client with:
-      ```shell script
-      $ travis env set GKE_AUTH "$(cat gke-credentials.json | base64 | tr -d ' ' | tr -d '\n')"
+- Login into the [GCloud console](https://console.cloud.google.com)
+- Create a [new service account](https://console.cloud.google.com/iam-admin/serviceaccounts).
+- Verity the roles assigned [here](https://console.cloud.google.com/iam-admin/iam).
+- Assign _"Kubernetes Admin"_ role
+- Create a new _Key_. Select `JSON` as the format. The JSON file will be downloaded
+  and saved to your computer automatically.
+- Then you could use some env variables:
+  - encode the file with `GKE_AUTH=$(cat gke-credentials.json | base64 | tr -d ' ' | tr -d '\n')`
+  - make this variable available to the cluster provider. In CI:
+    - for _Travis_, you can do it with the command line client with:
+      ```console
+      $ travis env set GKE_AUTH "$GKE_AUTH
       ```
-  b) encrypt the file
-    - for Travis, `travis encrypt-file gke-credentials.json`
-    - commit the encrypted file (the `*.enc` file) in some path in Git
-    - set `GKE_AUTH_FILE` in the env vars in `.travis.yaml`
-    - add the decryption line in the `.travis.yaml` file
+    - for _GitHub actions_, you can save it in a Secret and then create a
+      `env` block in your _Step_ with that secret, as:
+      ```yaml
+      env:
+        GKE_AUTH: ${{ secrets.GKE_AUTH }}
+      ```
