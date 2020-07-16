@@ -20,11 +20,11 @@ K3D_INSTALL_EXE="$HOME/bin/k3d"
 
 K3D_URL="https://github.com/rancher/k3d/releases/download/v1.7.0/k3d-linux-amd64"
 
-K3D_CLUSTER_NAME="${CLUSTER_NAME:-operator-tests-$user-$num}"
+K3D_CLUSTER_NAME="${CLUSTER_NAME:-cluster-$user-$num}"
 
 K3D_NETWORK_NAME="k3d-$K3D_CLUSTER_NAME"
 
-K3D_API_PORT=6444
+K3D_API_PORT=${K3D_API_PORT:-6444}
 
 K3D_REGISTRY_NAME="${K3D_REGISTRY_NAME:-registry.localhost}"
 
@@ -33,6 +33,8 @@ K3D_REGISTRY_PORT="${K3D_REGISTRY_PORT:-5000}"
 K3D_REGISTRY="$K3D_REGISTRY_NAME:$K3D_REGISTRY_PORT"
 
 K3D_NUM_WORKERS=0
+
+K3D_EXTRA_ARGS="${K3D_EXTRA_ARGS:-}"
 
 K3D_ARGS="--wait=60 --name=${K3D_CLUSTER_NAME} --api-port ${K3D_API_PORT} --enable-registry --registry-name ${K3D_REGISTRY_NAME} --registry-port ${K3D_REGISTRY_PORT} ${K3D_EXTRA_ARGS}"
 
