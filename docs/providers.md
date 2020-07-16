@@ -1,19 +1,19 @@
-# Credentials for the cluster providers
+# Current cluster providers
 
-In order to get some valid credentials for
-- running the performance tests or the end-to-end tests using the cluster providers, or for
-- running things automatically from Travis/Circle-CI
+## k3d
 
-you should get some _credentials_. These can be stored in a file (for using them locally) or
-in some environment variables (for CI). 
+### Advanced configuration
 
-The following sections describe how to get these credentials for some of the cloud
-providers currently supported.
- 
+The `k3d` cluster provider supports some environment variables for tweaking
+the configuration:
+
+- `K3D_EXTRA_ARGS`: custom arguments for `k3d create`.
+
 ## Azure
 
-- Login into azure with `az login`
+### Credentials
 
+- Login into azure with `az login`
 - Get the list of subscriptions with `az account list`
   ```json
    {
@@ -29,9 +29,7 @@ providers currently supported.
      }
    }
   ```
-
 - Set the account with `az account set --subscription="<SUBSCRIPTION_ID>"`
-
 - Run `az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<SUBSCRIPTION_ID>"`. You
   will get an output like:
   ```json
@@ -41,10 +39,9 @@ providers currently supported.
    "password": "<AZ_PASSWORD>",
    "tenant": "<AZ_TENANT>"
   }
-  ```   
+  ```
   and save it to `az-credentials.json`.
-  
-- Now you can then save the credentials in multiple ways (env vars must be set in Travis/CircleCI/etc):
+- Now you can then save the credentials in multiple ways (env vars must be set in Travis/CircleCI/GitHub/etc):
 
   a) encrypt the file
     - for Travis, `travis encrypt-file az-credentials.json`
@@ -66,18 +63,17 @@ providers currently supported.
 
 ## GKE
 
+
+### Credentials
+
 - Login into the GCloud console
-
 - Create a new service account in https://console.cloud.google.com/iam-admin/serviceaccounts
-
 - Verity the roles assigned in https://console.cloud.google.com/iam-admin/iam
-
 - Assign _"Kubernetes Admin"_ role
-
 - Create a new _Key_. Select `JSON` as the format. The JSON file will be downloaded and
   saved to your computer automatically.
-
 - Then you could:
+
   a) use some env variables:
     - encode the file with `cat gke-credentials.json | base64 | tr -d ' ' | tr -d '\n'`
     - save the output in a Travis env var called `GKE_AUTH`
@@ -90,6 +86,3 @@ providers currently supported.
     - commit the encrypted file (the `*.enc` file) in some path in Git
     - set `GKE_AUTH_FILE` in the env vars in `.travis.yaml`
     - add the decryption line in the `.travis.yaml` file
-
-
-

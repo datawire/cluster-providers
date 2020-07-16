@@ -7,7 +7,7 @@ on:
       - master
 
 jobs:
-  lint-test:
+  k3d-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,6 +22,23 @@ jobs:
             K3D_EXTRA_ARGS: --server-arg '--no-deploy=traefik'
 
       - name: Test the k3d cluster created
+        run: |
+          kubectl cluster-info
+          kubectl get all -A
+
+  kind-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Create kind cluster
+        uses: ./
+        with:
+            provider: kind
+            command: create
+
+      - name: Test the kind cluster created
         run: |
           kubectl cluster-info
           kubectl get all -A
