@@ -140,7 +140,7 @@ create)
     if ! command_exists k3d; then
         warn "No k3d command found. Install k3d or use a different CLUSTER_PROVIDER."
         info "You can manually install k3d with:"
-        info "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash"
+        info "curl -Lo /tmp/k3d $K3D_URL ; chmod 755 /tmp/k3d ; sudo cp -f /tmp/k3d /usr/local/bin/"
         abort "no k3d executable found"
     fi
 
