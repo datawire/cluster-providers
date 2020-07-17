@@ -7,6 +7,13 @@ set -o pipefail
 CURR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 TOP_DIR=$(realpath $CURR_DIR/../..)
 
+maybe_setup() {
+    if [ ! -e /tmp/.cluster-provider-setup-$provider ] ; then
+        "$TOP_DIR/providers.sh" "setup"
+        touch /tmp/.cluster-provider-setup-$provider
+    fi
+}
+
 main() {
     local provider="${INPUT_PROVIDER}"
     local command="${INPUT_COMMAND}"
@@ -19,13 +26,13 @@ main() {
 
     export CLUSTER_PROVIDER="$provider"
 
-    if [ ! -e /tmp/.cluster-provider-setup-$provider ] ; then
-        "$TOP_DIR/providers.sh" "setup"
-        touch /tmp/.cluster-provider-setup-$provider
-    fi
-
-    echo ">>> Running command $command"
-    "$TOP_DIR/providers.sh" "$command"
+    case $command in
+    *)
+        echo ">>> Running command $command"
+        maybe_setup
+        "$TOP_DIR/providers.sh" "$command"
+        ;;
+    esac
 
     echo ">>> Getting ennvironment"
     "$TOP_DIR/providers.sh" "get-env"
