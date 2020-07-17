@@ -1,8 +1,49 @@
 # Kubernetes Cluster Providers
 
-This repository contains the providers used for
-creating/destroying/_something-else_ Kubernetes clusters in a
-versatile way.
+Easily create/delete/_something-else_ Kubernetes clusters.
+
+Features:
+
+- common interface for creating Kubernetes clusters in both local
+  and cloud environments.
+- clusters have their own _Docker registry_ for pushing/pulling images.
+- configuration via environment variables. cluster information is also obtained
+  from environment variables.
+
+It can be used both as a standalone script as well as a GitHub action.
+
+## Example GitHub action
+
+```yaml
+name: Create Cluster
+on: pull_request
+jobs:
+  create-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create a local k3d cluster
+        uses: datawire/cluster-providers@master
+        # changing the provider to something different would keep things the same
+        with:
+            provider: k3d
+            command: create
+        # we can pass some advanced, provider-specific configuration in env variables
+        env:
+            K3D_EXTRA_ARGS: --server-arg '--no-deploy=traefik'
+
+      - name: Test the cluster we created
+        # KUBECONFIG has been set by the previous step: kubectl should work fine
+        run: |
+          kubectl cluster-info
+
+      - name: Delete the k3d cluster
+        uses: datawire/cluster-providers@master
+        # not really important to destroy a local cluster, but we should always
+        # remember to do it in cloud providers like GKE or Azure.
+        with:
+            provider: k3d
+            command: delete
+```
 
 # Table of contents
 
